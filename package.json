@@ -25,6 +25,7 @@
   },
   "scripts": {
     "bundle": "npm run format:write && npm run package",
+    "ci-test": "glob -c \"node --import tsx --test\" \"__tests__/**/*.test.ts\"",
     "coverage": "npx lcov-badge2 -o ./badges/coverage.svg coverage/lcov.info",
     "format:write": "npx prettier --write .",
     "format:check": "npx prettier --check .",
