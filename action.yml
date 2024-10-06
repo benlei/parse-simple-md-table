@@ -1,5 +1,5 @@
-name: 'Parse Simple Markdown Tables'
-description: 'Parses simple markdown tables into a JSON string.'
+name: 'Parse Simple Markdown Table'
+description: 'Parses a simple markdown table into a JSON string.'
 author: 'benlei'
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.

@@ -34,10 +34,14 @@ representating each row of the table.
 ```yaml
 - name: Parse Markdown Table
   uses: benlei/parse-simple-md-table@v1
+  id: parse-table
   with:
     markdown: |
       | Hello World | Goodbye World |
       | --- | --- |
       | 123 | abc |
       | foo | bar |
+
+- name: Output first row first column
+  run: echo ${{ fromJSON(steps.parse-table.outputs.result)[0]['Hello World'] }}
 ```
