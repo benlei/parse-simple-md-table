@@ -24947,7 +24947,6 @@ async function run() {
         return true;
     }
     catch (error) {
-        // Fail the workflow run if an error occurs
         if (error instanceof Error)
             (0, core_1.warning)(error.message);
         return false;

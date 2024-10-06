@@ -12,7 +12,6 @@ export async function run(): Promise<boolean> {
     setOutput('result', JSON.stringify(parseTable(getInput('markdown'))))
     return true
   } catch (error) {
-    // Fail the workflow run if an error occurs
     if (error instanceof Error) warning(error.message)
     return false
   }
