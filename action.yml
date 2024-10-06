@@ -10,7 +10,8 @@ branding:
 # Define your inputs here.
 inputs:
   markdown:
-    description: 'Your input description here'
+    description:
+      'The markdown to parse, which should only contain a markdown table'
     required: true
 
 # Define your outputs here.
