@@ -1834,6 +1834,13 @@ function isLoopbackAddress(host) {
 
 /***/ }),
 
+/***/ 5083:
+/***/ ((module) => {
+
+!function(e,r){ true?module.exports=r():0}(global,(()=>(()=>{"use strict";var e={602:(e,r)=>{Object.defineProperty(r,"__esModule",{value:!0}),r.parseTableRegular=void 0,r.parseTableRegular=e=>{const r=e.match(/^\s*(?<header>\|.*\|)\s*\r?\n(?<delimiter>[\s\|:\-]+)\r?\n(?<data>[\w\W]*)$/);if(!(null==r?void 0:r.groups))throw new Error("Invalid table");const{header:t,data:a}=r.groups,o=t.split("|").filter((e=>e)).map((e=>e.trim()));return a.trim().split(/\r?\n/).filter((e=>e)).map((e=>e.trim().split("|").filter((e=>e)).map((e=>e.trim())).reduce(((e,r,t)=>({...e,[o[t]]:r})),{})))}},86:(e,r)=>{Object.defineProperty(r,"__esModule",{value:!0}),r.parseTableTransposed=void 0,r.parseTableTransposed=e=>{const r=[];return e.split("\n").map((e=>e.trim())).filter((e=>e)).forEach((e=>{const t=e.split("|").map((e=>e.trim())).filter((e=>e)),a=t[0];t.filter(((e,r)=>0!==r)).forEach(((e,t)=>{var o;return r[t]={...null!==(o=r[t])&&void 0!==o?o:{},[a]:e}}))})),r}}},r={};function t(a){var o=r[a];if(void 0!==o)return o.exports;var s=r[a]={exports:{}};return e[a](s,s.exports,t),s.exports}var a={};return(()=>{var e=a;Object.defineProperty(e,"__esModule",{value:!0}),e.parseTable=void 0;const r=t(602),o=t(86);e.parseTable=(e,t)=>(null==t?void 0:t.transpose)?(0,o.parseTableTransposed)(e):(0,r.parseTableRegular)(e)})(),a})()));
+
+/***/ }),
+
 /***/ 4294:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
@@ -24921,82 +24928,30 @@ exports["default"] = _default;
 /***/ }),
 
 /***/ 399:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = run;
-const core = __importStar(__nccwpck_require__(2186));
-const wait_1 = __nccwpck_require__(5259);
+const core_1 = __nccwpck_require__(2186);
+// @ts-expect-error missing type declaration
+const md_table_1 = __nccwpck_require__(5083);
 /**
  * The main function for the action.
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 async function run() {
     try {
-        const ms = core.getInput('milliseconds');
-        // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-        core.debug(`Waiting ${ms} milliseconds ...`);
-        // Log the current timestamp, wait, then log the new timestamp
-        core.debug(new Date().toTimeString());
-        await (0, wait_1.wait)(parseInt(ms, 10));
-        core.debug(new Date().toTimeString());
-        // Set outputs for other workflow steps to use
-        core.setOutput('time', new Date().toTimeString());
+        (0, core_1.setOutput)('result', JSON.stringify((0, md_table_1.parseTable)((0, core_1.getInput)('markdown'))));
+        return true;
     }
     catch (error) {
         // Fail the workflow run if an error occurs
         if (error instanceof Error)
-            core.setFailed(error.message);
+            (0, core_1.warning)(error.message);
+        return false;
     }
-}
-
-
-/***/ }),
-
-/***/ 5259:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.wait = wait;
-/**
- * Wait for a number of milliseconds.
- * @param milliseconds The number of milliseconds to wait.
- * @returns {Promise<string>} Resolves with 'done!' after the wait is over.
- */
-async function wait(milliseconds) {
-    return new Promise(resolve => {
-        if (isNaN(milliseconds)) {
-            throw new Error('milliseconds not a number');
-        }
-        setTimeout(() => resolve('done!'), milliseconds);
-    });
 }
 
 

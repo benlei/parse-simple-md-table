@@ -6,84 +6,75 @@
  * variables following the pattern `INPUT_<INPUT_NAME>`.
  */
 
-import * as core from '@actions/core'
-import * as main from '../src/main'
+import { describe, it, mock, Mock, beforeEach, afterEach } from 'node:test'
+import assert from 'node:assert'
+import proxyquire from 'proxyquire'
 
-// Mock the action's main function
-const runMock = jest.spyOn(main, 'run')
+const MarkdownTable = `
+| Left-aligned Column | Center-aligned Column | Right-aligned Column |
+| :---         |     :---:      |          ---: |
+| git status   | git status     | git status    |
+| git diff     | git diff       | git diff      |
+`
 
-// Other utilities
-const timeRegex = /^\d{2}:\d{2}:\d{2}/
+let getInputMock: Mock<() => string>
+let warningMock: Mock<() => void>
+let setOutputMock: Mock<() => void>
 
-// Mock the GitHub Actions core library
-let debugMock: jest.SpiedFunction<typeof core.debug>
-let errorMock: jest.SpiedFunction<typeof core.error>
-let getInputMock: jest.SpiedFunction<typeof core.getInput>
-let setFailedMock: jest.SpiedFunction<typeof core.setFailed>
-let setOutputMock: jest.SpiedFunction<typeof core.setOutput>
-
-describe('action', () => {
+describe('main.run', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-
-    debugMock = jest.spyOn(core, 'debug').mockImplementation()
-    errorMock = jest.spyOn(core, 'error').mockImplementation()
-    getInputMock = jest.spyOn(core, 'getInput').mockImplementation()
-    setFailedMock = jest.spyOn(core, 'setFailed').mockImplementation()
-    setOutputMock = jest.spyOn(core, 'setOutput').mockImplementation()
+    getInputMock = mock.fn(() => MarkdownTable)
+    warningMock = mock.fn(() => {})
+    setOutputMock = mock.fn(() => {})
   })
 
-  it('sets the time output', async () => {
-    // Set the action's inputs as return values from core.getInput()
-    getInputMock.mockImplementation(name => {
-      switch (name) {
-        case 'milliseconds':
-          return '500'
-        default:
-          return ''
+  afterEach(() => {
+    mock.restoreAll()
+  })
+
+  it('should parse proper markdown table appropriately', async () => {
+    const main = proxyquire('../src/main', {
+      '@actions/core': {
+        getInput: getInputMock,
+        warning: warningMock,
+        setOutput: setOutputMock
       }
     })
 
-    await main.run()
-    expect(runMock).toHaveReturned()
-
-    // Verify that all of the core library functions were called correctly
-    expect(debugMock).toHaveBeenNthCalledWith(1, 'Waiting 500 milliseconds ...')
-    expect(debugMock).toHaveBeenNthCalledWith(
-      2,
-      expect.stringMatching(timeRegex)
-    )
-    expect(debugMock).toHaveBeenNthCalledWith(
-      3,
-      expect.stringMatching(timeRegex)
-    )
-    expect(setOutputMock).toHaveBeenNthCalledWith(
-      1,
-      'time',
-      expect.stringMatching(timeRegex)
-    )
-    expect(errorMock).not.toHaveBeenCalled()
+    assert.strictEqual(await main.run(), true)
+    assert.strictEqual(setOutputMock.mock.calls.length, 1)
+    assert.deepStrictEqual(setOutputMock.mock.calls[0].arguments, [
+      'result',
+      JSON.stringify([
+        {
+          'Left-aligned Column': 'git status',
+          'Center-aligned Column': 'git status',
+          'Right-aligned Column': 'git status'
+        },
+        {
+          'Left-aligned Column': 'git diff',
+          'Center-aligned Column': 'git diff',
+          'Right-aligned Column': 'git diff'
+        }
+      ])
+    ])
   })
 
-  it('sets a failed status', async () => {
-    // Set the action's inputs as return values from core.getInput()
-    getInputMock.mockImplementation(name => {
-      switch (name) {
-        case 'milliseconds':
-          return 'this is not a number'
-        default:
-          return ''
+  it('should set warning with an invalid table', async () => {
+    getInputMock = mock.fn(() => 'xxx')
+    const main = proxyquire('../src/main', {
+      '@actions/core': {
+        getInput: getInputMock,
+        warning: warningMock,
+        setOutput: setOutputMock
       }
     })
 
-    await main.run()
-    expect(runMock).toHaveReturned()
-
-    // Verify that all of the core library functions were called correctly
-    expect(setFailedMock).toHaveBeenNthCalledWith(
-      1,
-      'milliseconds not a number'
-    )
-    expect(errorMock).not.toHaveBeenCalled()
+    assert.strictEqual(await main.run(), false)
+    assert.strictEqual(setOutputMock.mock.calls.length, 0)
+    assert.strictEqual(warningMock.mock.calls.length, 1)
+    assert.deepStrictEqual(warningMock.mock.calls[0].arguments, [
+      'Invalid table'
+    ])
   })
 })

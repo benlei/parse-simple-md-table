@@ -1,23 +1,24 @@
-name: 'The name of your action here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Parse Simple Markdown Tables'
+description: 'Parses simple markdown tables into a JSON string.'
+author: 'benlei'
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
-  icon: 'heart'
-  color: 'red'
+  icon: 'play'
+  color: 'green'
 
 # Define your inputs here.
 inputs:
-  milliseconds:
+  markdown:
     description: 'Your input description here'
     required: true
-    default: '1000'
 
 # Define your outputs here.
 outputs:
-  time:
-    description: 'Your output description here'
+  result:
+    description:
+      'The JSON String of the parsed markdown table, or an empty string if it
+      could not be parsed.'
 
 runs:
   using: node20

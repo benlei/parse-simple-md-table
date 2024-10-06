@@ -57,8 +57,26 @@ jobs:
         id: test-action
         uses: ./
         with:
-          milliseconds: 2000
+          markdown: |
+            | Hello World | Goodbye World |
+            | --- | --- |
+            | 123 | abc |
+            | foo | bar |
 
-      - name: Print Output
-        id: output
-        run: echo "${{ steps.test-action.outputs.time }}"
+      - name: Check result not empty
+        if: ${{ steps.test-action.outputs.result == '' }}
+        run: exit 1
+
+      - name: Check first row
+        if:
+          ${{ fromJson(steps.test-action.outputs.result)[0]['Hello World'] !=
+          '123' || fromJson(steps.test-action.outputs.result)[0]['Goodbye
+          World'] != 'abc' }}
+        run: exit 1
+
+      - name: Check second row
+        if:
+          ${{ fromJson(steps.test-action.outputs.result)[1]['Hello World'] !=
+          'foo' || fromJson(steps.test-action.outputs.result)[1]['Goodbye
+          World'] != 'bar' }}
+        run: exit 1
