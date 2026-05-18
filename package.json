@@ -21,7 +21,7 @@
     ".": "./dist/index.js"
   },
   "engines": {
-    "node": ">=21"
+    "node": ">=24"
   },
   "scripts": {
     "bundle": "npm run format:write && npm run package",
@@ -41,7 +41,7 @@
     "@dborysov/md-table": "^1.0.18"
   },
   "devDependencies": {
-    "@types/node": "^22.5.5",
+    "@types/node": "^24.1.0",
     "@typescript-eslint/eslint-plugin": "^8.6.0",
     "@typescript-eslint/parser": "^8.6.0",
     "@vercel/ncc": "^0.38.1",
